@@ -41,7 +41,7 @@ async function iniciarSesion() {
     }
 
     try {
-        const respuesta = await fetch("login.php", {
+        const respuesta = await fetch("/html/login.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -60,7 +60,7 @@ async function iniciarSesion() {
             sessionStorage.setItem("rolUsuario", data.rol);
             
             // Redirigir a inicio.html
-            window.location.href = "inicio.html";
+            window.location.href = "/html/inicio.html";
         } else {
             alert("Error: " + data.message);
         }
