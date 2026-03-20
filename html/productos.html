@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos</title>
+    <!-- Ruta al CSS -->
+    <link rel="stylesheet" href="/css/productos.css">
+</head>
+
+<body>
+<header>
+    <h1>Gestión de Productos</h1>
+</header>
+
+<div class="contenedor">
+    <aside class="menu">
+        <ul>
+            <li><a href="#" onclick="location.href='inicio.html'">Inicio</a></li>
+            <div class="productos">
+                <li><a href="#">Productos</a></li> 
+            </div>
+            <li><a href="#">Entradas</a></li>
+            <li><a href="#">Salidas</a></li>
+            <li><a href="#">Inventario</a></li>
+            <li><a href="#">Proveedores</a></li>
+            <li><a href="#">Reportes</a></li>
+            <li><a href="#" onclick="location.href='crearUsuario.html'">Crear Usuario</a></li>
+            <li><a href="#">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
+
+    <main class="contenido">
+        <div class="barra-superior">
+    <!-- Se añadió id y onkeyup -->
+    <input type="text" id="inputBusqueda" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
+    <button class="btn-agregar" onclick="window.location.href='agregar_producto.html'">Agregar Producto</button>
+</div>
+
+
+        <table class="tabla-productos">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <!-- El cuerpo de la tabla se llena dinámicamente -->
+            <tbody id="cuerpoTabla">
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<script>
+       // Variable global para guardar la lista original
+    let listaProductosGlobal = [];
+
+    document.addEventListener("DOMContentLoaded", cargarProductos);
+
+    function cargarProductos() {
+        fetch('obtener_productos.php')
+            .then(respuesta => respuesta.json())
+            .then(resultado => {
+                if (resultado.status === 'ok') {
+                    // Guardamos los datos en la variable global
+                    listaProductosGlobal = resultado.data; 
+                    // Llenamos la tabla por primera vez
+                    llenarTabla(listaProductosGlobal);
+                } else {
+                    console.error("Error BD:", resultado.message);
+                }
+            })
+            .catch(error => console.error("Error en fetch:", error));
+    }
+
+            function llenarTabla(productos) {
+        const tbody = document.getElementById('cuerpoTabla');
+        let filas = '';
+
+        if(productos.length === 0){
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No se encontraron productos</td></tr>';
+            return;
+        }
+
+        // Variable para contar las filas visualmente (1, 2, 3...)
+        let contadorFila = 1;
+
+        productos.forEach(producto => {
+            let stock = parseInt(producto.UnidadesEnStock);
+            let estiloStock = (stock <= 7) ? 'color: red; font-weight: bold;' : '';
+
+            filas += `
+                <tr>
+                    <!-- Mostramos el contadorFila en lugar del ID real de la base de datos -->
+                    <td>${contadorFila}</td>
+                    <td>${producto.NombreProducto}</td>
+                    <td>$${parseFloat(producto.PrecioUnitario).toFixed(2)}</td>
+                    <td style="${estiloStock}">${stock}</td>
+                    <td class="acciones">
+                        <!-- Pero en los botones, seguimos usando el ID real para que SQL sepa qué borrar/editar -->
+                        <button class="editar" onclick="irAEditar(${producto.ProductoId}, '${encodeURIComponent(producto.NombreProducto)}', ${producto.PrecioUnitario}, ${producto.UnidadesEnStock})">Editar</button>
+                        <button class="eliminar" onclick="eliminarProducto(${producto.ProductoId})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+            
+            contadorFila++; // Aumentamos el contador para la siguiente fila
+        });
+        tbody.innerHTML = filas;
+    }
+
+
+
+    // --- NUEVA FUNCIÓN DE BÚSQUEDA ---
+    function filtrarProductos() {
+        // Obtener el texto que el usuario está escribiendo y pasarlo a minúsculas
+        const textoBusqueda = document.getElementById('inputBusqueda').value.toLowerCase();
+        
+        // Filtrar la lista original de productos
+        const productosFiltrados = listaProductosGlobal.filter(producto => {
+            // Convertimos el nombre del producto a minúsculas para comparar
+            const nombre = producto.NombreProducto.toLowerCase();
+            return nombre.includes(textoBusqueda);
+        });
+
+        // Volver a dibujar la tabla solo con los productos que coinciden
+        llenarTabla(productosFiltrados);
+    }
+
+    function irAEditar(id, nombre, precio, stock) {
+        window.location.href = `editar_producto.html?id=${id}&nombre=${nombre}&precio=${precio}&stock=${stock}`;
+    }
+
+    function eliminarProducto(id) {
+        if(confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+            fetch('eliminar_producto.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ProductoId: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'ok') {
+                    alert("Producto eliminado exitosamente");
+                    // Limpiamos la barra de búsqueda y recargamos de la base de datos
+                    document.getElementById('inputBusqueda').value = '';
+                    cargarProductos();
+                } else {
+                    alert("Error al eliminar: " + data.message);
+                }
+            });
+        }
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Inventario - Inicio</title>
+    <!-- Ruta al CSS -->
+    <link rel="stylesheet" href="
+    /css/inicio.css">
+</head>
+
+<body>
+
+<header>
+    <!-- Le pusimos un ID para cambiar el texto desde JavaScript -->
+    <h1 id="mensajeBienvenida">Cargando...</h1>
+</header>
+
+<div class="contenedor">
+
+    <aside class="menu">
+        <ul>
+            <div class="inicio">
+                <li><a href="inicio.html">Inicio</a></li>
+            </div>
+            
+            <!-- Cambiamos los onclick por href normales para mantener la estructura -->
+            <li><a href="productos.html">Productos</a></li>
+            <li><a href="#">Entradas</a></li>
+            <li><a href="#">Salidas</a></li>
+            <li><a href="#">Inventario</a></li>
+            <li><a href="#">Proveedores</a></li>
+            <li><a href="#">Reportes</a></li>
+            
+            <div class="crearUsuario" id="menuCrearUsuario">
+                <li><a href="crearUsuario.html">Crear Usuario</a></li>
+            </div>
+            
+            <!-- Botón de cerrar sesión configurado con la nueva función -->
+            <li><a href="#" onclick="cerrarSesion()">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
+
+    <main class="contenido">
+        <h2 id="subtituloBienvenida">Bienvenido</h2>
+        <p>Selecciona una opción del menú o una de las tarjetas para comenzar a trabajar con el sistema.</p>
+
+        <div class="tarjetas">
+            <div class="tarjeta" onclick="location.href='productos.html'" style="cursor: pointer;">
+                <h3>Productos</h3>
+                <p>Administrar productos del inventario.</p>
+            </div>
+
+            <div class="tarjeta" style="cursor: pointer;">
+                <h3>Entradas</h3>
+                <p>Registrar productos que llegan al almacén.</p>
+            </div>
+
+            <div class="tarjeta" style="cursor: pointer;">
+                <h3>Salidas</h3>
+                <p>Registrar productos que se venden o retiran.</p>
+            </div>
+
+            <div class="tarjeta" style="cursor: pointer;">
+                <h3>Reportes</h3>
+                <p>Consultar reportes del inventario.</p>
+            </div>
+        </div>
+    </main>
+
+</div>
+
+<footer>
+    <p>Sistema de Inventario © 2026</p>
+</footer>
+
+<script>
+    // Se ejecuta apenas carga la página
+    document.addEventListener("DOMContentLoaded", () => {
+        // Recuperamos los datos que login.php nos mandó y guardamos en index.html
+        const usuario = sessionStorage.getItem("usuarioLogueado");
+        const rol = sessionStorage.getItem("rolUsuario");
+
+        // VALIDACIÓN: Si no hay usuario, significa que no inició sesión. Lo regresamos al login.
+        if (!usuario) {
+            window.location.href = "index.html";
+            return;
+        }
+
+        // Mostrar el nombre y el rol en la cabecera
+        document.getElementById("mensajeBienvenida").textContent = `Bienvenido, ${usuario}`;
+        document.getElementById("subtituloBienvenida").textContent = `Panel de control (${rol})`;
+
+        // EXTRA (Opcional): Si el usuario NO es Administrador, ocultamos el botón de "Crear Usuario"
+        if (rol !== "Administrador") {
+            document.getElementById("menuCrearUsuario").style.display = "none";
+        }
+    });
+
+    // Función para cerrar sesión de forma segura
+    function cerrarSesion() {
+        if(confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+            // Borramos los datos guardados en el navegador
+            sessionStorage.clear();
+            // Lo regresamos a la pantalla de login
+            window.location.href = "index.html";
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Producto</title>
+    <link rel="stylesheet" href="/css/productos.css">
+    <style>
+        .formulario-agregar {
+            background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+            max-width: 400px; margin: 50px auto; font-family: sans-serif;
+        }
+        .formulario-agregar label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px;}
+        .formulario-agregar input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .botones-form { margin-top: 20px; display: flex; justify-content: space-between; }
+        .botones-form button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;}
+        .btn-guardar { background: #4CAF50; color: white; }
+        .btn-cancelar { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Agregar Nuevo Producto</h1>
+    </header>
+
+    <div class="formulario-agregar">
+        
+        <label>Nombre del Producto:</label>
+        <input type="text" id="add-nombre" placeholder="Ej: Coca Cola 600ml">
+        
+        <label>Precio Unitario:</label>
+        <input type="number" step="0.01" id="add-precio" placeholder="Ej: 18.50">
+        
+        <label>Unidades en Stock:</label>
+        <input type="number" id="add-stock" placeholder="Ej: 100">
+        
+        <div class="botones-form">
+            <button class="btn-cancelar" onclick="window.location.href='productos.html'">Cancelar</button>
+            <button class="btn-guardar" onclick="guardarNuevoProducto()">Guardar Producto</button>
+        </div>
+    </div>
+
+    <script>
+        function guardarNuevoProducto() {
+            const nombre = document.getElementById('add-nombre').value;
+            const precio = document.getElementById('add-precio').value;
+            const stock = document.getElementById('add-stock').value;
+
+            // Validaciones básicas
+            if(!nombre || !precio || !stock) {
+                alert("Por favor completa todos los campos.");
+                return;
+            }
+
+            fetch('insertar_producto.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    NombreProducto: nombre,
+                    PrecioUnitario: parseFloat(precio),
+                    UnidadesEnStock: parseInt(stock)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'ok') {
+                    alert("Producto agregado exitosamente");
+                    window.location.href = 'productos.html'; // Regresa a la tabla principal
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

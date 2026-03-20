@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Producto</title>
+    <link rel="stylesheet" href="/css/productos.css">
+    <style>
+        .formulario-edicion {
+            background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+            max-width: 400px; margin: 50px auto; font-family: sans-serif;
+        }
+        .formulario-edicion label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px;}
+        .formulario-edicion input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .botones-form { margin-top: 20px; display: flex; justify-content: space-between; }
+        .botones-form button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;}
+        .btn-guardar { background: #4CAF50; color: white; }
+        .btn-cancelar { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Editar Producto</h1>
+    </header>
+
+    <div class="formulario-edicion">
+        <input type="hidden" id="edit-id">
+        
+        <label>Nombre del Producto:</label>
+        <input type="text" id="edit-nombre">
+        
+        <label>Precio Unitario:</label>
+        <input type="number" step="0.01" id="edit-precio">
+        
+        <label>Unidades en Stock:</label>
+        <input type="number" id="edit-stock">
+        
+        <div class="botones-form">
+            <button class="btn-cancelar" onclick="window.location.href='productos.html'">Cancelar</button>
+            <button class="btn-guardar" onclick="guardarCambios()">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <script>
+        // Al cargar la página, extraemos los datos de la URL para rellenar el formulario
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            document.getElementById('edit-id').value = urlParams.get('id');
+            document.getElementById('edit-nombre').value = decodeURIComponent(urlParams.get('nombre'));
+            document.getElementById('edit-precio').value = urlParams.get('precio');
+            document.getElementById('edit-stock').value = urlParams.get('stock');
+        });
+
+        // Función que envía los nuevos datos a PHP
+        function guardarCambios() {
+            const id = document.getElementById('edit-id').value;
+            const nombre = document.getElementById('edit-nombre').value;
+            const precio = document.getElementById('edit-precio').value;
+            const stock = document.getElementById('edit-stock').value;
+
+            fetch('actualizar_producto.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    ProductoId: parseInt(id),
+                    NombreProducto: nombre,
+                    PrecioUnitario: parseFloat(precio),
+                    UnidadesEnStock: parseInt(stock)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'ok') {
+                    alert("Producto actualizado exitosamente");
+                    window.location.href = 'productos.html'; // Regresa a la tabla
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

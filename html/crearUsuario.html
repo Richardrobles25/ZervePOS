@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Crear Usuario</title>
+<link rel="stylesheet" href="/css/crearUsuario.css">
+</head>
+
+<body>
+
+<header>
+<h1>Bienvenido Administrador</h1>
+</header>
+
+<div class="contenedor">
+<aside class="menu">
+<ul>
+    <li><a href="inicio.html">Inicio</a></li>
+    <li><a href="productos.html">Productos</a></li>
+    <li><a href="#">Entradas</a></li>
+    <li><a href="#">Salidas</a></li>
+    <li><a href="#">Inventario</a></li>
+    <li><a href="#">Proveedores</a></li>
+    <li><a href="#">Reportes</a></li>
+    <div class="crearUsuario">
+        <li><a href="crearUsuario.html">Crear Usuario</a></li>
+    </div>
+    <li><a href="index.html">Cerrar Sesión</a></li>
+</ul>
+</aside>
+
+<main class="contenido">
+    <div class="formulario">
+        <h2>Datos del Empleado</h2>
+
+        <form id="formUsuario" class="centro">
+            <div class="campo">
+                <label>Nombre</label>
+                <input type="text" name="nombre" placeholder="Ingrese el nombre" required>
+            </div>
+
+            <div class="campo">
+                <label>Apellidos</label>
+                <input type="text" name="apellidos" placeholder="Ingrese los apellidos" required>
+            </div>
+
+            <div class="campo">
+                <label>Fecha de Nacimiento</label>
+                <input type="date" name="fechaNacimiento" required>
+            </div>
+
+            <div class="campo">
+                <label>Ciudad</label>
+                <input type="text" name="ciudad" placeholder="Ingrese la ciudad" required>
+            </div>
+
+            <div class="campo">
+                <label>Codigo Postal</label>
+                <input type="number" name="codigoPostal" placeholder="Ingrese el código postal" required>
+            </div>
+
+            <div class="campo">
+                <label>Domicilio (Dirección)</label>
+                <input type="text" name="domicilio" placeholder="Ingrese el domicilio" required>
+            </div>
+
+            <div class="campo">
+                <label>Telefono</label>
+                <input type="text" name="telefono" placeholder="Ingrese el teléfono" required>
+            </div>
+
+            <div class="campo">
+                <label>Rol</label>
+                <select name="rol" required>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Empleado">Empleado</option>
+                    <option value="Vendedor">Vendedor</option>
+                </select>
+            </div>
+
+            <h2>Datos de Acceso</h2>
+
+            <div class="campo">
+                <label>Usuario</label>
+                <input type="text" name="usuario" placeholder="Ingrese el nombre de usuario" required>
+            </div>
+
+            <div class="campo">
+                <label>Contraseña</label>
+                <input type="password" name="contrasena" placeholder="Ingrese la contraseña" required>
+            </div>
+
+            <button type="submit" class="boton">Crear Usuario</button>
+        </form>
+    </div>
+</main>
+</div>
+
+<footer>
+    <p>Sistema de Inventario © 2026</p>
+</footer>
+
+<script>
+const form = document.getElementById("formUsuario");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Extrae los datos del formulario (nombre, apellidos, domicilio, etc.)
+    const formData = Object.fromEntries(new FormData(form));
+
+    try {
+        // En lugar de llamar a NodeJS en el puerto 3000, llamamos a PHP
+        const res = await fetch("insertar_usuario.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+
+        // Validamos la respuesta del PHP
+        if(data.success) {
+            alert(data.message + " (ID asignado: " + data.empleadoId + ")");
+            form.reset(); // Limpia el formulario si se creó bien
+        } else {
+            alert("Error: " + (data.message || "Ocurrió un error al crear el usuario"));
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error de conexión con el servidor");
+    }
+});
+</script>
+
+
+</body>
+</html>
