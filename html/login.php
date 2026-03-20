@@ -2,14 +2,6 @@
 // login.php
 header('Content-Type: application/json; charset=utf-8');
 
-if (!function_exists('sqlsrv_connect')) {
-    echo json_encode([
-        "status" => "error",
-        "message" => "SQLSRV no está habilitado en este servidor"
-    ]);
-    exit;
-}
-
 // Configuración de la conexión a la base de datos ZervePos NUBE
 $serverName = "zervepos-rasshid-2026.database.windows.net"; 
 
