@@ -60,7 +60,12 @@ async function iniciarSesion() {
             sessionStorage.setItem("rolUsuario", data.rol);
             
             // Redirigir a inicio.html
-            window.location.href = "/html/inicio.html";
+           switch (data.rol) {
+    case "Administrador": window.location.href = "/html/inicioAdmin.html"; break;
+    case "Dueño":         window.location.href = "/html/inicioDueno.html"; break;
+    case "Cajero":        window.location.href = "/html/inicioCajero.html"; break;
+    default: alert("Rol desconocido: " + data.rol);
+}
         } else {
             alert("Error: " + data.message);
         }
